@@ -157,7 +157,7 @@ View(hourly_activity)
 ```
 
 ## STEP 4 & 5: ANALYZE AND SHARE
-## Viewing the summary of the 'daily_activity' dataset
+#### Viewing the summary of the 'daily_activity' dataset
 I viewed the summary of the ‘daily_activity’ dataset using; 
 ```{r}
 daily_activity %>%  
@@ -229,6 +229,7 @@ ggplot(weekday_sleep, aes(weekday, daily_sleep)) +
   labs(title = "Minutes spent asleep per weekday", x= "", y = "") +
   theme(axis.text.x = element_text(angle = 45,vjust = 0.5, hjust = 1))
 ```
+![Viz3](https://github.com/patriciauche/Bellabeat_casestudy/assets/152881279/5d6b385c-4b77-47e4-92d4-ffd84d2e9fad)
 
 The observations derived from the last two visualizations indicate that users typically fall short of the recommended 8 hours of sleep per night. Nevertheless, users generally meet the recommended daily step count of 7500, with the exception of Sundays.
 
@@ -250,4 +251,88 @@ ggplot(data = hourly_activity, aes(x = time, y = mean_total_int)) + geom_histogr
   theme(axis.text.x = element_text(angle = 90)) +
   labs(title="Average Total Intensity Over Time")
 ```
+![viz4](https://github.com/patriciauche/Bellabeat_casestudy/assets/152881279/c6bd37a9-2de3-4040-81be-002784b43f0e)
+
+Insights from the visualization above reveal that  that individuals exhibit higher activity levels between 5 am and 10 pm. The peak of activity occurs predominantly from 5 pm to 7 pm, suggesting that people engage in physical activities, such as going to the gym or taking a walk, after completing their workday. Utilizing this time frame, we can strategically remind and motivate users to engage in a run or walk through the Bellabeat app.
+
+### Visualization 5: Hourly steps throughout the day
+```{r}
+hourly_steps <- hourly_steps %>%
+ separate(date_time, into = c("date", "time"), sep= " ") %>%
+ mutate(date = ymd(date))
+
+head(hourly_steps)
+
+hourly_steps%>%
+ group_by(time) %>%
+ summarize(average_steps = mean(steptotal)) %>%
+  ggplot() +
+  geom_col(mapping = aes(x=time, y = average_steps, fill = average_steps)) +
+  labs(title = "Steps per hour", x="", y="") +
+  scale_fill_gradient(low = "red", high = "green")+
+  theme(axis.text.x = element_text(angle = 90))
+```
+(insert viz)
+Insights from the above visualization show that activity among users is heightened between 8 am and 5 pm, with an increased number of steps taken during the intervals of 12 pm to 2 pm and 5 pm to 7 pm. It can be inferred that the majority of users are likely working-class women. The surge in recorded steps during these time periods implies that users may be taking their lunch break (12 pm-2 pm) and wrapping up their workday (5 pm-7 pm) during these intervals.
+
+#### Categorizing users based on their daily usage of smart devices. 
+I computed the count of users utilizing their smart devices daily and classified them into three distinct categories as follows:
+- High users: Individuals who use their device for 21–31 days
+- Moderate users: Individuals who use their device for 10–20 days
+- Low users: Individuals who use their device for 1–10 days
+ I then created a new data frame, grouping it based on id, computing the total days the smart device was used, and introducing a new column that aligns with the classification above.
+
+```{r}
+daily_use <- daily_activity_sleep %>%
+ group_by(id) %>%
+ summarize(days_used=sum(n())) %>%
+ mutate(user_type= case_when(
+   days_used >= 1 & days_used <= 10 ~ "low user",
+   days_used >= 11 & days_used <= 20 ~ "moderate user",
+   days_used >= 21 & days_used <= 31 ~ "high user",
+ ))
+head(daily_use)
+```
+#### Merging the 'daily_activity' and 'daily_sleep' datasets. 
+```{r}
+daily_activity_sleep <- merge(daily_activity, daily_sleep, by=c ("id", "date"))
+```
+ #### Creating a percentage dataframe. 
+ I created a percentage dataframe so i can plot the data in a pie chart. 
+```{r}
+daily_use_percent <- daily_use %>%
+ group_by(user_type) %>%
+ summarise(total = n()) %>%
+ mutate(totals = sum(total)) %>%
+ group_by(user_type) %>%
+ summarise(total_percent = total / totals) %>%
+ mutate(labels = scales::percent(total_percent))
+
+daily_use_percent$user_type <- factor(daily_use_percent$user_type, levels = c("high user", "moderate user", "low user"))
+
+head(daily_use_percent)
+```
+### Visualization 6: Daily usage of smart devices
+```{r}
+daily_use_percent %>%
+  ggplot(aes(x = "",y = total_percent, fill = user_type)) +
+  geom_bar(stat = "identity", width = 1)+
+  coord_polar("y", start=0)+
+  theme_minimal()+
+  theme(axis.title.x= element_blank(),
+        axis.title.y = element_blank(),
+        panel.border = element_blank(), 
+        panel.grid = element_blank(), 
+        axis.ticks = element_blank(),
+        axis.text.x = element_blank(),
+        plot.title = element_text(hjust = 0.5, size=14, face = "bold")) +
+  geom_text(aes(label = labels),
+            position = position_stack(vjust = 0.5))+
+  scale_fill_manual(values =  c( "#EF6C00","#FF8F00","#FFC107"),
+                    labels = c("High user - 21 to 31 days",
+                               "Moderate user - 11 to 20 days",
+                               "Low user - 1 to 10 days"))+
+  labs(title="Daily usage of smart device")
+```
+(INSERT VIZ)
 
