@@ -1,11 +1,14 @@
 # Bellabeat_casestudy
 A case study analysis demonstrating the 6 steps of the data analysis process : Ask, Prepare, Process, Analyze, Share and Act, as taught in the Google data analytics course.
 
+
 ## Introduction
 I'm a junior data analyst on Bellabeat's marketing analysis team, focusing on the Bellabeat app, a high-tech health product for women. My task is to analyze smart device fitness data to understand customer usage patterns. The insights I uncover will inform Bellabeat's marketing strategy, and I'll present my findings and recommendations to the executive team.
 
+
 ## Project Overview
 The objective of this data analysis project is to uncover trends and usage patterns among smart device users and understand their relevance to Bellabeat customers. The analysis follows the six-step data analysis process: Ask, Prepare, Process, Analyze, Share, and Act, as instructed in the Google Data Analytics course.
+
 
 ## Data Sources 
 The dataset used is FitBit Fitness Tracker Data. It was made available by Mobius on Kaggle under CC0: Public Domain Creative Common License. This dataset can be found [here](https://www.kaggle.com/arashnic/fitbit)
@@ -15,7 +18,6 @@ The dataset used is FitBit Fitness Tracker Data. It was made available by Mobius
 Bellabeat is a leading high-tech manufacturer specialising in health-focused products for women, utilising advanced technology to gather comprehensive data on activity, sleep, stress, and reproductive health. 
 
 My goal is to conduct an in-depth analysis of data from FitBit smart device users, extracting valuable insights and identifying trends, patterns, and correlations within various health-related metrics and how they relate to bellabeat customers. This analysis aims to pinpoint growth opportunities and provide the Marketing department with recommendations and strategies for effective marketing initiatives.
-
 
 My primary stakeholders are; 
 Urška Sršen: Bellabeat’s cofounder and Chief Creative Officer and;
@@ -33,8 +35,10 @@ It's important to note that this dataset may have inherent biases due to its sma
 
 ## STEP 3: PROCESS
 I will be using R to clean, process, analyze and visualize my data. 
+
 #### Cleaning the data
 After logging into Rstudio, I installed and loaded the following packages that I needed to process and clean the data using ‘install.packages()’.
+
 #### Installing the Required Packages.
 ```{r}
 install.packages("tidyverse")
@@ -43,6 +47,7 @@ install.packages("lubridate")
 install.packages("skimr")
 install.packages("dplyr")
 ```
+
 #### Loading the installed packages.
 ```{r}
 library(tidyverse)
@@ -52,6 +57,7 @@ library(skimr)
 library(dplyr)
 ```
 After installing and loading the packages, I imported the following datasets into Rstudio using ‘read_csv()’;
+
 #### Importing the Datasets.
 I imported the datasets into Rstudio using the 'read_csv()' function. 
 ```{r}
@@ -63,6 +69,7 @@ hourly_calories <- read.csv("Fitabase Data 4.12.16-5.12.16/hourlyCalories_merged
 hourly_intensities <- read.csv("Fitabase Data 4.12.16-5.12.16/hourlyIntensities_merged.csv", header = TRUE)
 weight <- read.csv("Fitabase Data 4.12.16-5.12.16/weightLogInfo_merged.csv", header = TRUE)
 ```
+
 #### Viewing the datasets.
 I used the 'head()' function to look at  the different datasets to see the columns and the first 6 rows of each.
 ```{r}
@@ -74,6 +81,7 @@ head(hourly_intensities)
 head(hourly_steps)
 head(weight)
 ```
+
 #### View the summary of the datasets.
 I used the 'str()'function to display the summary and the structure of the datasets i imported.
 ```{r}
@@ -85,6 +93,7 @@ str(hourly_intensities)
 str(hourly_steps)
 str(weight)
 ```
+
 #### Finding the number of unique participants for each dataset. 
 I used the 'n_distinct()' function to find the number of unique participants in each dataset. 
 ```{r}
@@ -97,6 +106,7 @@ n_distinct(hourly_steps$Id)
 n_distinct(weight$Id)
 ```
 All the datasets had 33 unique participants except the ‘daily_sleep’ and ‘weight’ dataset which had 24 and 8 participants respectively.  I made the decision to exclude the ‘weight’ dataset because its sample size of 8 unique participants was too small to draw conclusions and make recommendations and I retained the rest of the datasets for my analysis. 
+
 #### Checking for duplicates. 
  I used the ‘duplicated()’ function to check for duplicates in my dataset. 
 ```{r}
@@ -107,12 +117,14 @@ sum(duplicated(hourly_calories))
 sum(duplicated(hourly_intensities))
 sum(duplicated(hourly_steps))
 ```
+
 #### Cleaning duplicates in the 'daily_sleep' dataset.
 I discovered that it was only the ‘daily_sleep' dataset that had 3 duplicate values. I removed the duplicate values using the following code;
 ```{r}
 daily_sleep <- unique(daily_sleep)
 sum(duplicated(daily_sleep))
 ```
+
 #### Cleaning the column names. 
 I cleaned the column names by removing all capital letters using the clean_names() and rename_with() functions. 
 ```{r} 
@@ -129,6 +141,7 @@ hourly_intensities <- rename_with(hourly_intensities, tolower)
 clean_names(hourly_steps)
 hourly_steps <- rename_with(hourly_steps, tolower)
 ```
+
 #### Cleaning and converting the date formats. 
 I cleaned the date formats in the datasets to make them consistent. In the  ‘daily_activity’ and ‘daily_sleep’ datasets, I changed the date format and in ‘hourly_calories’,’hourly_intensities’ and ‘hourly_steps’ datasets, i converted the date from date-string to date-time format.
 ```{r}
@@ -148,6 +161,7 @@ hourly_steps<- hourly_steps %>%
   rename(date_time = activityhour) %>%
   mutate(date_time = as.POSIXct(date_time, format ="%m/%d/%Y %I:%M:%S %p" , tz=Sys.timezone()))
 ```
+
 #### Merging three datasets hourly_intensities, hourly_steps and hourly_calories. 
 I decided to merge the three datasets containing time-related information into a single dataset using the “id” and “date_time” columns using the 'merge()' function. 
 ```{r}
@@ -156,7 +170,9 @@ hourly_activity <- merge(hourly_activity,hourly_steps,by=c("id","date_time"))
 View(hourly_activity)
 ```
 
+
 ## STEP 4 & 5: ANALYZE AND SHARE
+
 #### Viewing the summary of the 'daily_activity' dataset
 I viewed the summary of the ‘daily_activity’ dataset using; 
 ```{r}
@@ -172,6 +188,7 @@ The summary yielded the following insights:
 - The majority of participants fall into the category of light users. 
 - On average, participants sleep for 419 minutes (~7 hours).
 - The average calorie burn rate is 97 calories per hour.
+
 
 ### Visualization 1: Comparing total steps taken with calories burned.
 I plotted the line graph using the following code;
@@ -196,6 +213,8 @@ weekday_steps <-weekday_steps %>%
 
 head(weekday_steps)
 ```
+
+
 ### Visualization 2: Steps per weekday. 
 This visualization shows us the day of the week that users are most active. 
 ```{r}
@@ -220,6 +239,8 @@ weekday_sleep <-weekday_sleep %>%
 
 head(weekday_sleep)
 ```
+
+
 ### Visualization 3: Sleep per weekday
 This visualization will show us what day of the week participants sleep the most. 
 ```{r}
@@ -245,6 +266,8 @@ hourly_activity <- hourly_activity %>%
  drop_na() %>%
  summarise(mean_total_int = mean(totalintensity))
 ```
+
+
 ### Visualization 4: Hourly intensities throughout the day.
 ```{r}
 ggplot(data = hourly_activity, aes(x = time, y = mean_total_int)) + geom_histogram(stat = "identity", fill='#311B92') +
@@ -254,6 +277,8 @@ ggplot(data = hourly_activity, aes(x = time, y = mean_total_int)) + geom_histogr
 ![viz4](https://github.com/patriciauche/Bellabeat_casestudy/assets/152881279/c6bd37a9-2de3-4040-81be-002784b43f0e)
 
 Insights from the visualization above reveal that  that individuals exhibit higher activity levels between 5 am and 10 pm. The peak of activity occurs predominantly from 5 pm to 7 pm, suggesting that people engage in physical activities, such as going to the gym or taking a walk, after completing their workday. Utilizing this time frame, we can strategically remind and motivate users to engage in a run or walk through the Bellabeat app.
+
+
 
 ### Visualization 5: Hourly steps throughout the day
 ```{r}
@@ -272,7 +297,8 @@ hourly_steps%>%
   scale_fill_gradient(low = "red", high = "green")+
   theme(axis.text.x = element_text(angle = 90))
 ```
-(insert viz)
+![Viz5](https://github.com/patriciauche/Bellabeat_casestudy/assets/152881279/852d07da-7e8b-4d2d-8ee6-a8cc187f78e8)
+
 Insights from the above visualization show that activity among users is heightened between 8 am and 5 pm, with an increased number of steps taken during the intervals of 12 pm to 2 pm and 5 pm to 7 pm. It can be inferred that the majority of users are likely working-class women. The surge in recorded steps during these time periods implies that users may be taking their lunch break (12 pm-2 pm) and wrapping up their workday (5 pm-7 pm) during these intervals.
 
 #### Categorizing users based on their daily usage of smart devices. 
@@ -293,10 +319,12 @@ daily_use <- daily_activity_sleep %>%
  ))
 head(daily_use)
 ```
+
 #### Merging the 'daily_activity' and 'daily_sleep' datasets. 
 ```{r}
 daily_activity_sleep <- merge(daily_activity, daily_sleep, by=c ("id", "date"))
 ```
+
  #### Creating a percentage dataframe. 
  I created a percentage dataframe so i can plot the data in a pie chart. 
 ```{r}
@@ -312,6 +340,8 @@ daily_use_percent$user_type <- factor(daily_use_percent$user_type, levels = c("h
 
 head(daily_use_percent)
 ```
+
+
 ### Visualization 6: Daily usage of smart devices
 ```{r}
 daily_use_percent %>%
@@ -334,5 +364,29 @@ daily_use_percent %>%
                                "Low user - 1 to 10 days"))+
   labs(title="Daily usage of smart device")
 ```
-(INSERT VIZ)
+![Viz 6](https://github.com/patriciauche/Bellabeat_casestudy/assets/152881279/397129db-89a9-4051-815c-e9cdfaff6135)
+
+Insights from the above visualization show that:
+- 50% of the users of our sample use their device frequently — between 21 to 31 days.
+- 12% are moderate users (they use their device for 11 to 20 days).
+- 38% of our sample barelyused their device.
+
+
+## STEP 6: ACT
+Bellabeat is a company catered to women offering them the data needed to gain deeper insights into their health and habits.
+
+I conducted an analysis that showed the relationship between number of steps and calories burned, hours of sleep and number of steps per weekday. Additionally, I delved into the days of peak user activity, identified the most active time of the day, and proceeded to analyze the individual usage patterns of the device for each user. 
+
+After analysing the fitbit fitness data I will address the business objective of aiding Bellabeat in refining its marketing strategy by leveraging the insights derived from my findings:
+
+Our target audience consists of adult women working full time according to the hourly intensities data I recommend further exploration of trends to develop a targeted marketing strategy catering to this demographic, while also imparting knowledge on cultivating healthy habits.
+
+
+## Recommendations for the Bellabeat app.
+- Recommendations tailored to users needs: Users ought to have the capability to input their health objectives or needs, such as weight loss or gain, and the app can then offer personalized recommendations or devise a tailored plan to assist them in achieving their specific goals.
+
+- Step count notification: The Bellabeat app could incorporate a feature enabling users to establish daily step goals, sending reminders if the goal remains unmet by the end of the day. Additionally, the app can provide periodic updates on users' current step count and issue notifications upon the achievement of their daily step goals.
+
+- Sleep tracking: The app's sleep tracking feature should incorporate a weekly summary of the daily sleep data, alerting users when they fall short of the recommended daily sleep hours and providing solutions for those experiencing difficulties in falling asleep.
+
 
