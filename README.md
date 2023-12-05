@@ -179,8 +179,32 @@ I plotted the line graph using the following code;
 ggplot(data = daily_activity, aes(x = totalsteps, y = calories)) + 
   geom_smooth(color = "black")+ labs(title ="Steps vs. Calories")
 ```
+![viz 1](https://github.com/patriciauche/Bellabeat_casestudy/assets/152881279/63c14e78-a9f1-40cd-af00-b7799e22ef82)
 
+There is a positive correlation between the number of steps taken and the number of calories burned. This means that the higher the number of steps, the higher the number of calories burned. 
 
+#### Calculating the total number of steps taken each day of the week.
+This code returns the total number of steps taken each day of the week. 
+```{r}
+weekday_steps <- daily_activity %>%
+ mutate(weekday = weekdays(date))
+weekday_steps$weekday <-ordered(weekday_steps$weekday, levels=c("Monday", "Tuesday", "Wednesday", "Thursday",
+                                                               "Friday", "Saturday", "Sunday"))
+weekday_steps <-weekday_steps %>%
+ group_by(weekday) %>%
+ summarize (daily_steps = mean(totalsteps))
+
+head(weekday_steps)
+```
+### Visualization 2: Steps per weekday. 
+This visualization shows us the day of the week that users are most active. 
+```{r}
+ggplot(weekday_steps, aes(weekday, daily_steps)) +
+  geom_col(fill = "#D81B60") +
+  geom_hline(yintercept = 7500) +
+  labs(title = "Steps per weekday", x= "", y = "") +
+  theme(axis.text.x = element_text(angle = 45,vjust = 0.5, hjust = 1))
+```
 
 
 
