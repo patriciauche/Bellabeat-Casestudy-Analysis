@@ -205,6 +205,49 @@ ggplot(weekday_steps, aes(weekday, daily_steps)) +
   labs(title = "Steps per weekday", x= "", y = "") +
   theme(axis.text.x = element_text(angle = 45,vjust = 0.5, hjust = 1))
 ```
+![viz2](https://github.com/patriciauche/Bellabeat_casestudy/assets/152881279/d41a906f-471c-4fe0-9d98-0d2752b7f1ba)
 
+#### Calculating the number of minutes spent sleeping each day. 
+```{r}
+weekday_sleep <- daily_sleep %>%
+ mutate(weekday = weekdays(date))
+weekday_sleep$weekday <-ordered(weekday_sleep$weekday, levels=c("Monday", "Tuesday", "Wednesday", "Thursday",
+                                                               "Friday", "Saturday", "Sunday"))
 
+weekday_sleep <-weekday_sleep %>%
+ group_by(weekday) %>%
+ summarize (daily_sleep = mean(totalminutesasleep))
+
+head(weekday_sleep)
+```
+### Visualization 3: Sleep per weekday
+This visualization will show us what day of the week participants sleep the most. 
+```{r}
+ggplot(weekday_sleep, aes(weekday, daily_sleep)) +
+  geom_col(fill = "#BA68C8") +
+  geom_hline(yintercept = 480) +
+  labs(title = "Minutes spent asleep per weekday", x= "", y = "") +
+  theme(axis.text.x = element_text(angle = 45,vjust = 0.5, hjust = 1))
+```
+
+The observations derived from the last two visualizations indicate that users typically fall short of the recommended 8 hours of sleep per night. Nevertheless, users generally meet the recommended daily step count of 7500, with the exception of Sundays.
+
+#### Splitting the datetime column in 'hourly_activity'. 
+```{r}
+hourly_activity <- hourly_activity %>%
+ separate(date_time, into = c("date", "time"), sep= " ")
+
+head(hourly_activity)
+
+hourly_activity <- hourly_activity %>%
+ group_by(time) %>%
+ drop_na() %>%
+ summarise(mean_total_int = mean(totalintensity))
+```
+### Visualization 4: Hourly intensities throughout the day.
+```{r}
+ggplot(data = hourly_activity, aes(x = time, y = mean_total_int)) + geom_histogram(stat = "identity", fill='#311B92') +
+  theme(axis.text.x = element_text(angle = 90)) +
+  labs(title="Average Total Intensity Over Time")
+```
 
